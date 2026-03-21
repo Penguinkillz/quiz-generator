@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Brain, FileText, Zap } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
 import QuizForm from "@/components/sections/QuizForm";
@@ -22,7 +22,7 @@ const features = [
   {
     icon: Zap,
     title: "Instant results",
-    desc: "Answer, submit, and see what you got right with explanations.",
+    desc: "Answer, submit, and get a full breakdown with strength analysis.",
   },
 ];
 
@@ -39,106 +39,112 @@ export default function Home() {
 
       <Navbar />
 
-      <main className="relative mx-auto max-w-6xl px-6 pb-24 pt-16">
-        {/* Hero */}
-        {!questions && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="mb-14 text-center"
-          >
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
-              Powered by Groq + Llama 3.3 70B — Free
-            </div>
-            <h1 className="font-jakarta mb-4 bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-5xl lg:text-6xl">
-              Turn your notes
-              <br />
-              <span className="bg-gradient-to-r from-sky-400 to-sky-500 bg-clip-text text-transparent">
-                into a quiz
-              </span>
-            </h1>
-            <p className="mx-auto max-w-lg text-base text-slate-400">
-              Upload PDFs, paste your notes, pick a difficulty and let AI generate
-              a multiple-choice quiz. Answer, submit, see your score.
-            </p>
-          </motion.div>
-        )}
-
-        {/* Feature cards — only on landing */}
-        {!questions && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-            className="mb-12 grid gap-4 sm:grid-cols-3"
-          >
-            {features.map((f, i) => (
-              <div
-                key={i}
-                className="group rounded-xl border border-white/8 bg-[#0f172a]/60 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/20 hover:shadow-lg hover:shadow-sky-500/5"
+      <main className="relative mx-auto px-6 pb-24 pt-12">
+        <AnimatePresence mode="wait">
+          {/* ── Landing + Form view ── */}
+          {!questions && (
+            <motion.div
+              key="landing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="mx-auto max-w-6xl"
+            >
+              {/* Hero */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: "easeOut" }}
+                className="mb-12 text-center"
               >
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-sky-500/20 bg-sky-500/10">
-                  <f.icon className="h-4 w-4 text-sky-400" />
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+                  Powered by Groq + Llama 3.3 70B — Free
                 </div>
-                <p className="mb-1 text-sm font-semibold text-slate-200">{f.title}</p>
-                <p className="text-xs leading-relaxed text-slate-500">{f.desc}</p>
-              </div>
-            ))}
-          </motion.div>
-        )}
+                <h1 className="font-jakarta mb-4 bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-5xl font-bold leading-tight tracking-tight text-transparent lg:text-6xl">
+                  Turn your notes
+                  <br />
+                  <span className="bg-gradient-to-r from-sky-400 to-sky-500 bg-clip-text text-transparent">
+                    into a quiz
+                  </span>
+                </h1>
+                <p className="mx-auto max-w-lg text-base text-slate-400">
+                  Upload PDFs, paste your notes, pick a difficulty — AI generates
+                  multiple-choice questions. Answer one at a time, submit, and see
+                  your score with a full breakdown.
+                </p>
+              </motion.div>
 
-        {/* Two-column layout */}
-        <div className={questions ? "grid gap-8 lg:grid-cols-2" : "mx-auto max-w-2xl"}>
-          {/* Left — form (always visible) */}
-          <div>
-            {questions && (
-              <motion.h2
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-widest"
+              {/* Feature cards */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
+                className="mb-12 grid gap-4 sm:grid-cols-3"
               >
-                Generate new quiz
-              </motion.h2>
-            )}
-            <QuizForm onQuizReady={(qs) => setQuestions(qs)} />
-          </div>
+                {features.map((f, i) => (
+                  <div
+                    key={i}
+                    className="group rounded-xl border border-white/8 bg-[#0f172a]/60 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/20 hover:shadow-lg hover:shadow-sky-500/5"
+                  >
+                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-sky-500/20 bg-sky-500/10">
+                      <f.icon className="h-4 w-4 text-sky-400" />
+                    </div>
+                    <p className="mb-1 text-sm font-semibold text-slate-200">{f.title}</p>
+                    <p className="text-xs leading-relaxed text-slate-500">{f.desc}</p>
+                  </div>
+                ))}
+              </motion.div>
 
-          {/* Right — quiz area */}
+              {/* Form */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
+                className="mx-auto max-w-2xl"
+              >
+                <QuizForm onQuizReady={(qs) => setQuestions(qs)} />
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* ── Active quiz view ── */}
           {questions && (
-            <div>
-              <motion.h2
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-widest"
-              >
-                Your quiz
-              </motion.h2>
+            <motion.div
+              key="quiz"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mx-auto max-w-2xl"
+            >
               <QuizArea
                 questions={questions}
                 onReset={() => setQuestions(null)}
               />
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-8 text-center">
-        <p className="text-xs text-slate-600">
-          Quiz Generator · Part of{" "}
-          <span className="text-slate-500">Micro AI Tools</span> ·{" "}
-          <a
-            href="https://github.com/Penguinkillz/Micro-AI-tools"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sky-600 hover:text-sky-500 transition-colors"
-          >
-            GitHub
-          </a>
-        </p>
-      </footer>
+      {!questions && (
+        <footer className="border-t border-white/5 py-8 text-center">
+          <p className="text-xs text-slate-600">
+            Quiz Generator · Part of{" "}
+            <span className="text-slate-500">Micro AI Tools</span> ·{" "}
+            <a
+              href="https://github.com/Penguinkillz/Micro-AI-tools"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-600 hover:text-sky-500 transition-colors"
+            >
+              GitHub
+            </a>
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
