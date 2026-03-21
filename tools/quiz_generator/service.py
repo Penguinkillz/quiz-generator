@@ -1,11 +1,43 @@
 """Core quiz generation logic — no FastAPI dependencies here."""
 import json
+import re
 from typing import Any, Dict, List
 
 from fastapi import HTTPException
 
 from core.llm import get_llm_client
 from tools.quiz_generator.models import QuizQuestion, QuizRequest, QuizResponse
+
+_VALID_ESCAPES = set('"\\\/bfnrt')
+
+
+def _sanitize(content: str) -> str:
+    """Strip BOM and control characters that break JSON parsing."""
+    content = content.lstrip("\ufeff")
+    content = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", content)
+    return content
+
+
+def _fix_json_escapes(content: str) -> str:
+    """Replace invalid JSON escape sequences with their literal character."""
+    result = []
+    i = 0
+    while i < len(content):
+        ch = content[i]
+        if ch == "\\" and i + 1 < len(content):
+            nxt = content[i + 1]
+            if nxt in _VALID_ESCAPES or nxt == "u":
+                result.append(ch)
+                result.append(nxt)
+                i += 2
+                continue
+            # Invalid escape — emit the literal character
+            result.append(nxt)
+            i += 2
+            continue
+        result.append(ch)
+        i += 1
+    return "".join(result)
 
 
 def _build_prompt(payload: QuizRequest) -> str:
@@ -49,6 +81,8 @@ Sources:
 
 
 def _parse_response(content: str) -> Dict[str, Any]:
+    content = _sanitize(content)
+    content = _fix_json_escapes(content)
     try:
         return json.loads(content)
     except json.JSONDecodeError:
@@ -73,6 +107,7 @@ def generate(payload: QuizRequest) -> QuizResponse:
                 {"role": "user", "content": prompt},
             ],
             temperature=0.7,
+            response_format={"type": "json_object"},
         )
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"LLM API error: {exc}") from exc

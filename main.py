@@ -18,4 +18,4 @@ app.add_middleware(
 )
 
 app.include_router(quiz_router, prefix="/api")
-app.mount("/", StaticFiles(directory="tools/quiz_generator/frontend", html=True), name="frontend")
+app.mount("/", StaticFiles(directory="frontend/out", html=True), name="frontend")

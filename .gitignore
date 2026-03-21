@@ -39,3 +39,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Next.js — keep frontend/out (pre-built static files needed for Railway)
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
